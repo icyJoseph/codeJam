@@ -1,4 +1,5 @@
 import utils
+import math
 
 
 def process(input):
@@ -9,20 +10,19 @@ def process(input):
 
 
 def solve(case, stalls_people):
+    print("Case: " + str(case))
     stalls, people = [int(element) for element in stalls_people]
-    stalls_dict = buildModel(stalls)
+    if stalls == people:
+        return "Case #"+str(case + 1)+": " + str(0) + " " + str(0)
     y = 0
     z = 0
+    ls_rs = [stalls]
     for person in range(0, people):
-        ls_rs = computeLsRs(stalls_dict)
-        decision = decide(ls_rs, stalls_dict)
-        modifyModel(decision, stalls_dict)
-        # print(stalls_dict)
-        # print(ls_rs)
-        # print(ls_rs[decision])
+        response, new_ls_rs = compute(ls_rs)
+        ls_rs = new_ls_rs
         if person == people - 1:
-            y = max(ls_rs[decision])
-            z = min(ls_rs[decision])
+            y = max(response)
+            z = min(response)
     return "Case #"+str(case + 1)+": " + str(y) + " " + str(z)
 
 
@@ -30,74 +30,24 @@ def get_number_of_cases(row):
     return int(row[0])
 
 
-def buildModel(stalls):
-    model = []
-    for index in range(0, stalls):
-        model.extend([{'index': index, 'state': 0}])
-    return model
-
-
-def modifyModel(index, stalls):
-    toRemove = stalls[index]
-    stalls.remove(toRemove)
-    stalls.insert(index, {'index': index, 'state': 1})
-
-
-def computeLsRs(stalls_dict):
-    ls_rs = []
-    for index in range(0, len(stalls_dict)):
-        if stalls_dict[index]['state'] == 1:
-            left_s = -100
-            right_s = -100
-        else:
-            left_s = left(index, stalls_dict)
-            right_s = right(index, stalls_dict)
-        ls_rs.append([left_s, right_s])
-    return ls_rs
-
-
-def left(index, stalls_dict):
-    left = index
-    for i in range(index - 1, -1, -1):
-        if stalls_dict[i]['state'] == 1:
-            left = index - i - 1
-            break
-    return left
-
-
-def right(index, stalls_dict):
-    right = len(stalls_dict) - index - 1
-    for i in range(index + 1, len(stalls_dict)):
-        if stalls_dict[i]['state'] == 1:
-            right = i - index - 1
-            break
-    return right
-
-
-def decide(ls_rs, stalls_dict):
-    # These are all by default ordered left to right
-    mins = [min(pair) for pair in ls_rs]
-    maximal = max(mins)
-    decision = [elem for elem in ls_rs if min(elem) == maximal]
-    if len(decision) > 1:
-        maxes = max([max(elem) for elem in decision])
-        narrow_decision = [
-            elem for elem in decision if max(elem) == maxes]
-        if len(narrow_decision) > 1:
-            start = 0
-            # THIS LOOP IS TOO EXPENSIVE!
-            print(len(narrow_decision))
-            for index in range(0, len(narrow_decision)):
-                suggested = narrow_decision[index]
-                temp_index = ls_rs.index(suggested)
-                if stalls_dict[temp_index]['state'] == 0:
-                    return ls_rs.index(suggested, start)
-                elif stalls_dict[temp_index]['state'] == 1:
-                    start = stalls_dict[temp_index]['index']
-        elif len(narrow_decision) == 1:
-            return ls_rs.index(narrow_decision[0])
+def compute(ls_rs):
+    max_segment = max(ls_rs)
+    ls_rs.remove(max_segment)
+    a, b = 0, 0
+    if max_segment == 1:
+        ls_rs.append(a)
+        ls_rs.append(b)
+        return [a, b], ls_rs
+    if max_segment % 2 == 0:
+        # even procedure
+        a = int(max_segment / 2) - 1
+        b = int(max_segment / 2)
     else:
-        return ls_rs.index(decision[0])
+        a = int(math.floor((max_segment) / 2))
+        b = a
+    ls_rs.append(a)
+    ls_rs.append(b)
+    return [a, b], ls_rs
 
 
 filename = utils.getFilename()
