@@ -5,7 +5,8 @@ import math
 def process(input):
     number_of_cases = get_number_of_cases(input[0])
     cases = input[1:]
-    solution = [solve(case, cases[case]) for case in range(0, number_of_cases)]
+    solution = [opti_solve(case, cases[case])
+                for case in range(0, number_of_cases)]
     return solution
 
 
@@ -19,8 +20,18 @@ def solve(case, stalls_people):
         y, z = nodeCalculator(1)
     else:
         y, z = nodeCalculator(ls_rs[people-1])
-    print(optimized([5]))
     return "Case #"+str(case + 1)+": " + str(int(y)) + " " + str(int(z))
+
+
+def opti_solve(case, stalls_people):
+    print("Case: " + str(case))
+    stalls, people = [int(element) for element in stalls_people]
+    if stalls == people:
+        return "Case #"+str(case + 1)+": " + str(0) + " " + str(0)
+
+    level = previous_power_of_2(people)
+    print(level)
+    return "Case #"+str(case + 1)+": " + str(int(0)) + " " + str(int(0))
 
 
 def get_number_of_cases(row):
@@ -34,7 +45,7 @@ def previous_power_of_2(x):
 def nodeCalculator(node):
     a, b = 0, 0
     if node % 2 == 0:
-        # even
+            # even
         a = node/2
         b = node/2 - 1
     elif node % 2 != 0:
@@ -74,8 +85,6 @@ def optimized(nodes):
     new_nodes = [breaker(node) for node in nodes]
     return [item for sublist in new_nodes for item in sublist]
 
-
-#flat_list = [item for sublist in l for item in sublist]
 
 def breaker(node):
     if node % 2 == 0:
