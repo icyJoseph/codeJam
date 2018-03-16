@@ -5,8 +5,10 @@ import math
 def process(input):
     number_of_cases = get_number_of_cases(input[0])
     cases = input[1:]
+    #solution = [solve(case, cases[case]) for case in range(0, number_of_cases)]
     solution = [opti_solve(case, cases[case])
                 for case in range(0, number_of_cases)]
+    print(solution)
     return solution
 
 
@@ -25,13 +27,25 @@ def solve(case, stalls_people):
 
 def opti_solve(case, stalls_people):
     print("Case: " + str(case))
-    stalls, people = [int(element) for element in stalls_people]
-    if stalls == people:
+    stalls, last_person = [int(element) for element in stalls_people]
+    if stalls == last_person:
         return "Case #"+str(case + 1)+": " + str(0) + " " + str(0)
-
-    level = previous_power_of_2(people)
+    base, level = previous_power_of_2(last_person)
+    nodes = [stalls]
     print(level)
-    return "Case #"+str(case + 1)+": " + str(int(0)) + " " + str(int(0))
+    for step in range(0, level):
+        print(step)
+        new_nodes, flag = optimized(nodes)
+        nodes = new_nodes
+        if flag:
+            break
+    if len(new_nodes) < last_person - base - 1:
+        y = 0
+        z = 0
+    else:
+        y = max(nodeCalculator(new_nodes[last_person-base - 1]))
+        z = min(nodeCalculator(new_nodes[last_person-base - 1]))
+    return "Case #"+str(case + 1)+": " + str(int(y)) + " " + str(int(z))
 
 
 def get_number_of_cases(row):
@@ -39,7 +53,7 @@ def get_number_of_cases(row):
 
 
 def previous_power_of_2(x):
-    return 1 if x == 0 else int(2**(x).bit_length() / 2)
+    return (1, 0) if x == 0 else (int(2**(x).bit_length() / 2), x.bit_length() - 1)
 
 
 def nodeCalculator(node):
@@ -82,15 +96,21 @@ def compute(stalls, people):
 
 
 def optimized(nodes):
-    new_nodes = [breaker(node) for node in nodes]
-    return [item for sublist in new_nodes for item in sublist]
+    arr = []
+    flag = False
+    for index in range(0, len(nodes)):
+        new_nodes = breaker(nodes[index])
+        if new_nodes == [0, 0] or new_nodes == [1, 0] or new_nodes == [0, 1] or new_nodes == [2, 1] or new_nodes == [1, 2]:
+            flag = True
+        arr.extend(new_nodes)
+    return arr, flag
 
 
 def breaker(node):
     if node % 2 == 0:
-        return [int(node/2 - 1), int(node/2)]
+        return int(node/2 - 1), int(node/2)
     else:
-        return [int(node/2), int(node/2)]
+        return int(node/2), int(node/2)
 
 
 filename = utils.getFilename()
