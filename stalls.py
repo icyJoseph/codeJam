@@ -5,11 +5,9 @@ import math
 def process(input):
     number_of_cases = get_number_of_cases(input[0])
     cases = input[1:]
-    #solution = [solve(case, cases[case]) for case in range(0, number_of_cases)]
-    solution = [opti_solve(case, cases[case])
-                for case in range(0, number_of_cases)]
-    print(solution)
-    return solution
+    optimal = [opti_solve(case, cases[case])
+               for case in range(0, number_of_cases)]
+    return optimal
 
 
 def solve(case, stalls_people):
@@ -25,35 +23,8 @@ def solve(case, stalls_people):
     return "Case #"+str(case + 1)+": " + str(int(y)) + " " + str(int(z))
 
 
-def opti_solve(case, stalls_people):
-    print("Case: " + str(case))
-    stalls, last_person = [int(element) for element in stalls_people]
-    if stalls == last_person:
-        return "Case #"+str(case + 1)+": " + str(0) + " " + str(0)
-    base, level = previous_power_of_2(last_person)
-    nodes = [stalls]
-    print(level)
-    for step in range(0, level):
-        print(step)
-        new_nodes, flag = optimized(nodes)
-        nodes = new_nodes
-        if flag:
-            break
-    if len(new_nodes) < last_person - base - 1:
-        y = 0
-        z = 0
-    else:
-        y = max(nodeCalculator(new_nodes[last_person-base - 1]))
-        z = min(nodeCalculator(new_nodes[last_person-base - 1]))
-    return "Case #"+str(case + 1)+": " + str(int(y)) + " " + str(int(z))
-
-
 def get_number_of_cases(row):
     return int(row[0])
-
-
-def previous_power_of_2(x):
-    return (1, 0) if x == 0 else (int(2**(x).bit_length() / 2), x.bit_length() - 1)
 
 
 def nodeCalculator(node):
@@ -95,22 +66,45 @@ def compute(stalls, people):
     return sorted_nodes, len(sorted_nodes)
 
 
-def optimized(nodes):
-    arr = []
-    flag = False
-    for index in range(0, len(nodes)):
-        new_nodes = breaker(nodes[index])
-        if new_nodes == [0, 0] or new_nodes == [1, 0] or new_nodes == [0, 1] or new_nodes == [2, 1] or new_nodes == [1, 2]:
-            flag = True
-        arr.extend(new_nodes)
-    return arr, flag
+def opti_solve(case, stalls_people):
+    print("Case: " + str(case))
+    stalls, last_person = [int(element) for element in stalls_people]
+    # PYTHON SETS TO THE RESCUE!
+    N = {stalls}
+    atoms = {stalls: 1}
+    flag = True
+    coverage = 0
+    while flag:
+        M = max(N)
+        if M % 2 == 0:
+            b = math.floor((M - 1) // 2)
+            a = b + 1
+        else:
+            b = math.floor((M-1) // 2)
+            a = b
+        coverage += atoms[M]
+        if coverage >= last_person:
+            flag = False
+            return "Case #"+str(case + 1)+": " + str(int(a)) + " " + str(int(b))
+        else:
+            N.remove(M)
+            N.add(a)
+            N.add(b)
+            atoms = progression(atoms, a, b, atoms[M])
 
 
-def breaker(node):
-    if node % 2 == 0:
-        return int(node/2 - 1), int(node/2)
-    else:
-        return int(node/2), int(node/2)
+def progression(atoms, a, b, c):
+    if a in atoms:
+        curr = atoms[a]
+        atoms[a] = curr + c
+    elif a not in atoms:
+        atoms[a] = c
+    if b in atoms:
+        curr = atoms[b]
+        atoms[b] = curr + c
+    elif b not in atoms:
+        atoms[b] = c
+    return atoms
 
 
 filename = utils.getFilename()
