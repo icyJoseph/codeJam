@@ -41,3 +41,11 @@ Taken from [Round 1B 2017.](https://code.google.com/codejam/contest/8294486/dash
 ```
 horses.py
 ```
+
+## Counting Sheep
+
+Taken from [Qualification Round 2016.](https://code.google.com/codejam/contest/6254486/dashboard)
+
+```
+sheep.py
+```
