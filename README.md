@@ -49,3 +49,11 @@ Taken from [Qualification Round 2016.](https://code.google.com/codejam/contest/6
 ```
 sheep.py
 ```
+
+## Revenge of the Pancakes
+
+Taken from [Qualification Round 2016.](https://code.google.com/codejam/contest/6254486/dashboard#s=p1)
+
+```
+revenge.py
+```
